@@ -1,12 +1,14 @@
-# fdu-17ss-web-lab
+# fdu-17ss-web-lab[Wang, Chen version]
 
-大家好，我们将在这里发布我们后续的 Lab
+The collection of works of Wang, Chen for the class Introduction to web development.
 
-## 当前 Lab
+Update date Mar 21, 2018
+
+## Current Lab
 
 - [Lab09](./requirements/Lab09.md)
 
-## 往期 Lab
+## Previous Labs
 
 - [Lab02](./requirements/Lab02.md)
 - [Lab03](./requirements/Lab03.png)

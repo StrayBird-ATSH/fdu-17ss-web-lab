@@ -1,0 +1,39 @@
+* {
+  text-align: center;
+  align-items: center;
+}
+
+select, button {
+  width: 300px;
+}
+
+button {
+  display: none;
+}
+
+#inputsForTable input {
+  display: none;
+}
+
+input, option {
+  padding: 0 0.5em;
+  text-align: left;
+}
+
+table thead {
+  background-color: grey;
+  color: whitesmoke;
+}
+
+table {
+  display: inline-block;
+  border-width: 0;
+}
+
+tbody tr:nth-child(even) {
+  background-color: lightgrey;
+}
+p{
+  color: red;
+  display: none;
+}

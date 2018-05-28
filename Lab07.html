@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Lab07</title>
+  <link href="css/lab07.css" rel="stylesheet">
+</head>
+<body>
+<form id="form" name="form">
+  <select id="select1" name="select1" title="SelectOne">
+    <option>SELECT ONE</option>
+    <option>CREATE TABLE</option>
+    <option>ADD ROW</option>
+    <option>DELETE ROW</option>
+    <option>DELETE TABLE</option>
+  </select>
+  <br/>
+  <div id="inputsForTable">
+    <input type="text" name="tableNameInput"
+           title="tableNameInput" placeholder="Table Name">
+    <input type="number" name="columnNumberInput"
+           title="columnNumberInput" placeholder="Columns Numbers" min="1">
+  </div>
+  <br/>
+  <p>WARNING: You cannot undo this action!</p>
+  <div id="inputsForHeader"></div>
+  <button type="button">commit</button>
+  <br/>
+  <select id="select2" name="select2" title="SelectTwo">
+    <option>
+      SELECT (default: last created)
+    </option>
+  </select>
+  <br/>
+</form>
+<div id="table_placeholder"></div>
+<script src="js/Lab07.js" type="text/javascript"></script>
+</body>
+</html>
