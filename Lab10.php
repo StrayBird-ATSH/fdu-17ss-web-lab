@@ -12,14 +12,28 @@ if ($error != null) {
 function getSearch()
 {
   global $connection;
-  if (isset($_GET['country'])) {
+  $sql = "SELECT Title,Path,ImageID FROM imagedetails";
+  if (isset($_GET['country']) && $_GET['country'] != "0" && $_GET['country'] != "") {
     $country = $_GET['country'];
-    $sql = "SELECT * FROM imagedetails WHERE CountryCodeISO='$country'";
-    $result = mysqli_query($connection, $sql);
-    while ($row = $result->fetch_assoc()) {
-      echo '<option value=' . $row['ContinentCode'] . '>' . $row['ContinentName'] . '</option>';
+    $sql .= " WHERE CountryCodeISO='$country'";
+    if (isset($_GET['title']) && $_GET['title'] != "") {
+      $title = $_GET['title'];
+      $sql .= " AND Title LIKE '%$title%'";
     }
+  } elseif (isset($_GET['continent']) && $_GET['continent'] != "" && $_GET['continent'] != "0") {
+    $continent = $_GET['continent'];
+    $sql .= " WHERE ContinentCode='$continent'";
+    if (isset($_GET['title']) && $_GET['title'] != "") {
+      $title = $_GET['title'];
+      $sql .= " AND Title LIKE '%$title%'";
+    }
+  } elseif (isset($_GET['title']) && $_GET['title'] != "") {
+    $title = $_GET['title'];
+    $sql .= " WHERE Title LIKE '%$title%'";
   }
+  $result = mysqli_query($connection, $sql);
+  $images = mysqli_fetch_all($result, MYSQLI_ASSOC);
+  return $images;
 }
 
 ?>
@@ -55,7 +69,7 @@ function getSearch()
           <select name="continent" class="form-control" title="continent">
             <option value="0">Select Continent</option>
             <?php
-            $sql = "SELECT * FROM Continents";
+            $sql = "SELECT ContinentCode,ContinentName FROM continents ORDER BY ContinentName";
             $result = mysqli_query($connection, $sql);
             while ($row = $result->fetch_assoc()) {
               echo '<option value=' . $row['ContinentCode'] . '>' . $row['ContinentName'] . '</option>';
@@ -65,14 +79,14 @@ function getSearch()
           <select name="country" class="form-control" title="country">
             <option value="0">Select Country</option>
             <?php
-            $sql = "SELECT * FROM countries";
+            $sql = "SELECT ISO, CountryName FROM countries ORDER BY CountryName";
             $result = mysqli_query($connection, $sql);
             while ($row = $result->fetch_assoc()) {
               echo '<option value=' . $row['ISO'] . '>' . $row['CountryName'] . '</option>';
             }
             ?>
           </select>
-          <input type="text" placeholder="Search title" class="form-control" name=title>
+          <input type="text" placeholder="Search title" class="form-control" name="title">
           <button type="submit" class="btn btn-primary">Filter</button>
         </div>
       </form>
@@ -80,22 +94,25 @@ function getSearch()
   </div>
   <ul class="caption-style-2">
     <?php
-    //Fill this place
-
-    //****** Hint ******
-    /* use while loop to display images that meet requirements ... sample below ... replace ???? with field data
-    <li>
-      <a href="detail.php?id=????" class="img-responsive">
-        <img src="images/square-medium/????" alt="????">
-        <div class="caption">
-          <div class="blur"></div>
-          <div class="caption-text">
-            <p>????</p>
-          </div>
-        </div>
-      </a>
-    </li>
-    */
+    $images = getSearch();
+    for ($i = 0;
+         $i < count($images);
+         $i++) {
+      $path = $images[$i]['Path'];
+      $id = $images[$i]['ImageID'];
+      $title = $images[$i]['Title'];
+      echo '<li>';
+      echo "<a href=\"detail.php?id=$id\" class=\"img-responsive\">";
+      echo "<img src=\"images/square-medium/$path\" alt=\"$title\">";
+      echo "<div class=\"caption\">";
+      echo "<div class=\"blur\"></div>";
+      echo "<div class=\"caption-text\">";
+      echo "<p>$title</p>";
+      echo "</div>";
+      echo "</div>";
+      echo "</a>";
+      echo "</li>";
+    }
     ?>
   </ul>
 </main>
