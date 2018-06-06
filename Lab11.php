@@ -103,20 +103,21 @@
   <select>
     <!--TODO: 在这里补充 html 元素，使点开 #d_show 之后这里实时加载服务器中已有的歌名-->
     <?php
-    $dir=dirname(__FILE__)."/files";
+    $dir = dirname(__FILE__) . "/files";
     //PHP遍历文件夹下所有文件
-    $handle=opendir($dir.".");
+    $handle = opendir($dir . ".");
     //定义用于存储文件名的数组
     $array_file = array();
-    while (false !== ($file = readdir($handle)))
-    {
+    while (false !== ($file = readdir($handle))) {
       if ($file != "." && $file != "..") {
         $array_file[] = $file; //输出文件名
       }
     }
     closedir($handle);
-    print_r($array_file);
-    ?>
+    foreach ($array_file as $i => $music) {
+      echo '<option value=' . $i . '>' . $music . '</option>';
+    } ?>
+
   </select>
 
   <textarea id="lyric" readonly="true">
@@ -188,8 +189,9 @@
     let timeString = "[";
     let audioElement = document.getElementsByTagName("audio")[0];
     let time = audioElement.currentTime;
-    timeString += time/60;
+    timeString += time / 60;
   }
+
   function autoPlayMusic() {
     let audioControl = document.getElementsByTagName("audio")[0];
     audioControl.src = document.form.file_upload.file;
