@@ -1,6 +1,7 @@
 <html>
 <head>
   <title>LRC 歌词编辑器</title>
+  <meta charset="utf-8">
   <style>
     nav ul {
       position: fixed;
@@ -70,17 +71,14 @@
 
 <!--歌词编辑部分-->
 <section id="s_edit" class="content">
-  <form id="f_upload" enctype="multipart/form-data">
+  <form id="f_upload" enctype="multipart/form-data" method="post" name="form">
     <p>请上传音乐文件</p>
 
     <audio controls preload="auto">
-      <source src="#" type="audio/ogg">
-      <source src="#" type="audio/webm">
-      <source src="#" type="audio/webm">
       <p>Browser doesn't support the audio control</p>
     </audio>
 
-    <input type="file" name="file_upload">
+    <input type="file" name="file_upload" onchange="autoPlayMusic()">
     <table>
       <tr>
         <td>Title: <input type="text"></td>
@@ -104,7 +102,21 @@
 <section id="s_show" class="content">
   <select>
     <!--TODO: 在这里补充 html 元素，使点开 #d_show 之后这里实时加载服务器中已有的歌名-->
-
+    <?php
+    $dir=dirname(__FILE__)."/files";
+    //PHP遍历文件夹下所有文件
+    $handle=opendir($dir.".");
+    //定义用于存储文件名的数组
+    $array_file = array();
+    while (false !== ($file = readdir($handle)))
+    {
+      if ($file != "." && $file != "..") {
+        $array_file[] = $file; //输出文件名
+      }
+    }
+    closedir($handle);
+    print_r($array_file);
+    ?>
   </select>
 
   <textarea id="lyric" readonly="true">
@@ -173,10 +185,15 @@
   }
 
   function get_current_time() {
-    let timeString = "";
+    let timeString = "[";
     let audioElement = document.getElementsByTagName("audio")[0];
-    let time = audioElement.getTime();
-    $("audio").prop("currentTime");
+    let time = audioElement.currentTime;
+    timeString += time/60;
+  }
+  function autoPlayMusic() {
+    let audioControl = document.getElementsByTagName("audio")[0];
+    audioControl.src = document.form.file_upload.file;
+    audioControl.play();
   }
 
   /* HINT:
