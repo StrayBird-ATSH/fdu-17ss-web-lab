@@ -142,6 +142,8 @@
   };
   let audioEdit = document.getElementsByTagName("audio")[0];
   let audioDisplay = document.getElementsByTagName("audio")[1];
+  let lyricDisplay = document.getElementById("lyric");
+  let lyricArray = [];
   document.getElementById("d_show").click();
 
   function click_tab(tag) {
@@ -223,8 +225,10 @@
     let xmlHttp = new XMLHttpRequest();
     xmlHttp.open('GET', the_request_url, true);
     xmlHttp.onreadystatechange = function () {
-      if (xmlHttp.readyState === 4 && xmlHttp.status === 200)
-        document.getElementById("lyric").value = xmlHttp.responseText;
+      if (xmlHttp.readyState === 4 && xmlHttp.status === 200) {
+        lyricDisplay.value = xmlHttp.responseText;
+        prepareLyricsData();
+      }
     };
     xmlHttp.send(null);
   }
@@ -239,11 +243,38 @@
    *
    * TODO: 请实现你的歌词滚动效果。
    */
-  audioDisplay.ontimeupdate = function () {
-    let lyrics = document.getElementById("lyric").value;
+  function formatTime(time) {
+    let m = time.split(':')[0];
+    let s = time.split(':')[1];
+    return Number(m) * 60 + Number(s);
+  }
+
+  function prepareLyricsData() {
+    let lyrics = lyricDisplay.value;
     console.log("this is line 244");
-    let lyricsArray = lyrics.match(/[^\r\n]+/g);
-    console.log(lyricsArray);
+    console.log(lyrics);
+    let lyricData = lyrics.match(/[^\r\n]+/g);
+    for (let i = 0; i < lyricData.length; i++) {
+      console.log(lyricData);
+      console.log("this is line 254");
+      let tmpTime = /\d+:\d+.\d+/.exec(lyricData[i]);
+      let tmpLyric = lyricData[i].split(/[\\[]\d+:\d+.\d+]/);
+      if (tmpTime != null) {
+        lyricArray.push({time: formatTime(String(tmpTime)), lyric: tmpLyric[1]});
+      }
+    }
+  }
+
+  function validateTime(currentTime = 0) {
+    for (let i = 0; i < lyricArray.length; i++) {
+      console.log(i);
+      if (currentTime < lyricArray[i].time) return i;
+    }
+  }
+
+  audioDisplay.ontimeupdate = function () {
+    let index = validateTime(audioDisplay.currentTime);
+    lyricDisplay.scrollTop = 30 * index;
   };
 </script>
 </html>
