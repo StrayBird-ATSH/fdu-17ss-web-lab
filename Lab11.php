@@ -50,14 +50,37 @@
       display: block;
     }
 
-    #lyric {
-      width: 35%;
-      height: 60%;
-      border: 0;
-      resize: none;
-      font-size: large;
-      line-height: 2em;
+    #lyricDisplay {
+      overflow: hidden;
+      width: 800px;
+      height: 480px;
+      box-shadow: 0 0 5px black;
+      margin: auto auto;
+    }
+
+    #lyricDisplay #words {
+      cursor: default;
+      transition: all 0.5s ease;
+      width: 100%;
+      height: 100%;
       text-align: center;
+      font-size: 20px;
+
+    }
+
+    #words li {
+      height: 48px;
+      line-height: 48px;
+    }
+
+    #words {
+      color: red;
+    }
+
+    ul, li {
+      margin: 0;
+      padding: 0;
+      list-style: none;
     }
   </style>
 </head>
@@ -120,14 +143,14 @@
         echo '<option value=' . $i . '>' . $music . '</option>';
       } ?>
     </select>
-
-    <textarea id="lyric" readonly="readonly" title="">
-    </textarea>
     <audio controls preload="auto">
       <p>Browser doesn't support the audio control</p>
     </audio>
     <!--TODO: 在这里补充 html 元素，使选择了歌曲之后这里展示歌曲进度条，并且支持上下首切换-->
   </form>
+  <div id="lyricDisplay">
+    <ul id="words" style="margin-top: 240px"></ul>
+  </div>
 </section>
 </body>
 <script src="js/jquery-3.3.1.js"></script>
@@ -142,9 +165,10 @@
   };
   let audioEdit = document.getElementsByTagName("audio")[0];
   let audioDisplay = document.getElementsByTagName("audio")[1];
-  let lyricDisplay = document.getElementById("lyric");
+  let lyricDisplay = document.getElementById("lyricDisplay");
   let lyricArray = [];
   document.getElementById("d_show").click();
+  let count = 0;
 
   function click_tab(tag) {
     for (let i = 0; i < document.getElementsByClassName("tab").length; i++)
@@ -181,7 +205,6 @@
     let value = document.getElementById("edit_lyric").value;
     let f_pos = get_target_pos(n_pos);
     let l_pos = 0;
-
     for (let i = f_pos; ; i++) {
       if (value.charAt(i) === '\n') {
         l_pos = i + 1;
@@ -258,16 +281,56 @@
       if (tmpTime != null)
         lyricArray.push({time: formatTime(String(tmpTime)), lyric: tmpLyric[1]});
     }
+    for (let i = 0; i < lyricArray.length; i++) {
+      let lyricBorder = document.getElementById('words');
+      let lyricEl = document.createElement('li');
+      lyricEl.innerHTML = lyricArray[i].lyric;
+      lyricBorder.appendChild(lyricEl);
+    }
+    count = 0;
   }
 
-  function validateTime(currentTime = 0) {
-    for (let i = 0; i < lyricArray.length; i++)
-      if (currentTime < lyricArray[i].time) return i;
-  }
+  var validateTime = function (time, index) {
+    if (index < lyricArray.length - 1) {
+      if (time >= lyricArray[index].time && time <= lyricArray[index + 1].time) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      if (time <= audioDisplay.duration) {
+        return true;
+      } else {
+        return false;
+      }
+    }
 
-  audioDisplay.ontimeupdate = function () {
-    let index = validateTime(audioDisplay.currentTime);
-    lyricDisplay.scrollTop = 30 * index;
   };
+
+  var wordEl = document.getElementById('words');
+  var marTop = parseInt(wordEl.style.marginTop);
+  audioDisplay.ontimeupdate = function () {
+    var time = audioDisplay.currentTime;
+    if (!validateTime(time, count)) {
+      count++;
+    }
+    wordEl.style.marginTop = (marTop - count * 48) + 'px';
+    var li = wordEl.querySelectorAll('li');
+    for (var i = 0; i < li.length; i++) {
+      li[i].removeAttribute('class');
+    }
+    wordEl.querySelectorAll('li')[count].setAttribute('class', 'sel');
+    if (audioDisplay.ended) {
+      wordEl.style.marginTop = marTop + 'px';
+      count = 0;
+    }
+  }
+  audioDisplay.onseeked = function () {
+    var cur_time = audioDisplay.currentTime;
+    for (var _i = 0; _i <= lyricArray.length - 1; _i++) {
+      if (cur_time >= lyricArray[_i].time && cur_time <= lyricArray[_i + 1].time)
+        count = _i;
+    }
+  }
 </script>
 </html>
