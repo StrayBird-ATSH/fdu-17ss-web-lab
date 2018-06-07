@@ -129,6 +129,7 @@
 <section id="s_show" class="content">
   <form action="" name="formDisplay">
     <select name="songName" title="" onchange="changeSong()">
+      <option value="">Please select a song from the server</option>
       <!--TODO: 在这里补充 html 元素，使点开 #d_show 之后这里实时加载服务器中已有的歌名-->
       <?php
       $dir = dirname(__FILE__) . "/files";
@@ -248,6 +249,7 @@
     audioDisplay.play();
     let path = audioDisplay.src;
     ajaxFunction(path.slice(0, path.length - 4) + ".lrc");
+    count = 0;
   }
 
   function ajaxFunction(the_request_url) {
@@ -298,14 +300,16 @@
 
   function validateTime(time, index) {
     if (index < lyricArray.length - 1)
-      return time >= lyricArray[index].time && time <= lyricArray[index + 1].time;
+      return time >= lyricArray[index].time;
     else return time <= audioDisplay.duration;
   }
 
   audioDisplay.ontimeupdate = function () {
     let time = audioDisplay.currentTime;
-    if (!validateTime(time, count)) count++;
-    lyricsUl.style.marginTop = (marginTop - count * 48) + 'px';
+    if (validateTime(time, count)) {
+      count++;
+      lyricsUl.style.marginTop = (marginTop - count * 48) + 'px';
+    }
     let li = lyricsUl.querySelectorAll('li');
     for (let i = 0; i < li.length; i++)
       li[i].removeAttribute('class');
