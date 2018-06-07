@@ -239,5 +239,11 @@
    *
    * TODO: 请实现你的歌词滚动效果。
    */
+  audioDisplay.ontimeupdate = function () {
+    let lyrics = document.getElementById("lyric").value;
+    console.log("this is line 244");
+    let lyricsArray = lyrics.match(/[^\r\n]+/g);
+    console.log(lyricsArray);
+  };
 </script>
 </html>
