@@ -110,7 +110,8 @@
       //定义用于存储文件名的数组
       $array_file = array();
       while (false !== ($file = readdir($handle))) {
-        if ($file != "." && $file != "..") {
+        if ($file != "." && $file != ".." &&
+            strrchr(strtolower($file), ".mp3") == ".mp3") {
           $array_file[] = $file; //输出文件名
         }
       }
@@ -214,6 +215,18 @@
     let selectedIndex = document.formDisplay.songName.selectedIndex;
     audioDisplay.src = "./files/" + document.formDisplay.songName[selectedIndex].text;
     audioDisplay.play();
+    let path = audioDisplay.src;
+    ajaxFunction(path.slice(0, path.length - 4) + ".lrc");
+  }
+
+  function ajaxFunction(the_request_url) {
+    let xmlHttp = new XMLHttpRequest();
+    xmlHttp.open('GET', the_request_url, true);
+    xmlHttp.onreadystatechange = function () {
+      if (xmlHttp.readyState === 4 && xmlHttp.status === 200)
+        document.getElementById("lyric").value = xmlHttp.responseText;
+    };
+    xmlHttp.send(null);
   }
 
   /* HINT:
@@ -226,6 +239,5 @@
    *
    * TODO: 请实现你的歌词滚动效果。
    */
-
 </script>
 </html>
