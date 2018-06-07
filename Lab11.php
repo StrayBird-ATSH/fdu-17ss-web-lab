@@ -251,25 +251,18 @@
 
   function prepareLyricsData() {
     let lyrics = lyricDisplay.value;
-    console.log("this is line 244");
-    console.log(lyrics);
     let lyricData = lyrics.match(/[^\r\n]+/g);
     for (let i = 0; i < lyricData.length; i++) {
-      console.log(lyricData);
-      console.log("this is line 254");
       let tmpTime = /\d+:\d+.\d+/.exec(lyricData[i]);
       let tmpLyric = lyricData[i].split(/[\\[]\d+:\d+.\d+]/);
-      if (tmpTime != null) {
+      if (tmpTime != null)
         lyricArray.push({time: formatTime(String(tmpTime)), lyric: tmpLyric[1]});
-      }
     }
   }
 
   function validateTime(currentTime = 0) {
-    for (let i = 0; i < lyricArray.length; i++) {
-      console.log(i);
+    for (let i = 0; i < lyricArray.length; i++)
       if (currentTime < lyricArray[i].time) return i;
-    }
   }
 
   audioDisplay.ontimeupdate = function () {
