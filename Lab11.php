@@ -82,6 +82,10 @@
       padding: 0;
       list-style: none;
     }
+
+    .sel {
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -163,11 +167,13 @@
   document.getElementById("d_show").onclick = function () {
     click_tab("show");
   };
+  document.getElementById("d_show").click();
   let audioEdit = document.getElementsByTagName("audio")[0];
   let audioDisplay = document.getElementsByTagName("audio")[1];
   let lyricDisplay = document.getElementById("lyricDisplay");
+  let lyricsUl = document.getElementById('words');
+  let marginTop = parseInt(lyricsUl.style.marginTop);
   let lyricArray = [];
-  document.getElementById("d_show").click();
   let count = 0;
 
   function click_tab(tag) {
@@ -290,44 +296,28 @@
     count = 0;
   }
 
-  var validateTime = function (time, index) {
-    if (index < lyricArray.length - 1) {
-      if (time >= lyricArray[index].time && time <= lyricArray[index + 1].time) {
-        return true;
-      } else {
-        return false;
-      }
-    } else {
-      if (time <= audioDisplay.duration) {
-        return true;
-      } else {
-        return false;
-      }
-    }
+  function validateTime(time, index) {
+    if (index < lyricArray.length - 1)
+      return time >= lyricArray[index].time && time <= lyricArray[index + 1].time;
+    else return time <= audioDisplay.duration;
+  }
 
-  };
-
-  var wordEl = document.getElementById('words');
-  var marTop = parseInt(wordEl.style.marginTop);
   audioDisplay.ontimeupdate = function () {
-    var time = audioDisplay.currentTime;
-    if (!validateTime(time, count)) {
-      count++;
-    }
-    wordEl.style.marginTop = (marTop - count * 48) + 'px';
-    var li = wordEl.querySelectorAll('li');
-    for (var i = 0; i < li.length; i++) {
+    let time = audioDisplay.currentTime;
+    if (!validateTime(time, count)) count++;
+    lyricsUl.style.marginTop = (marginTop - count * 48) + 'px';
+    let li = lyricsUl.querySelectorAll('li');
+    for (let i = 0; i < li.length; i++)
       li[i].removeAttribute('class');
-    }
-    wordEl.querySelectorAll('li')[count].setAttribute('class', 'sel');
+    lyricsUl.querySelectorAll('li')[count].setAttribute('class', 'sel');
     if (audioDisplay.ended) {
-      wordEl.style.marginTop = marTop + 'px';
+      lyricsUl.style.marginTop = marginTop + 'px';
       count = 0;
     }
-  }
+  };
   audioDisplay.onseeked = function () {
-    var cur_time = audioDisplay.currentTime;
-    for (var _i = 0; _i <= lyricArray.length - 1; _i++) {
+    let cur_time = audioDisplay.currentTime;
+    for (let _i = 0; _i <= lyricArray.length - 1; _i++) {
       if (cur_time >= lyricArray[_i].time && cur_time <= lyricArray[_i + 1].time)
         count = _i;
     }
