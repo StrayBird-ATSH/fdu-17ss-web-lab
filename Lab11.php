@@ -105,14 +105,17 @@
       <p>Browser doesn't support the audio control</p>
     </audio>
 
-    <input type="file" name="file_upload" onchange="autoPlayMusic()">
+    <input type="file" name="file_upload" onchange="uploadFile()">
     <table>
       <tr>
-        <td>Title: <input type="text"></td>
-        <td>Artist: <input type="text"></td>
+        <td>Title: <input title="" type="text"></td>
+        <td>Artist: <input title="" type="text"></td>
       </tr>
       <tr>
-        <td colspan="2"><textarea name="edit_lyric" id="edit_lyric"></textarea></td>
+        <td colspan="2">
+          <textarea title="" name="edit_lyric" id="edit_lyric">
+          </textarea>
+        </td>
       </tr>
       <tr>
         <td><input type="button" value="插入时间标签"></td>
@@ -227,8 +230,23 @@
     timeString += time / 60;
   }
 
-  function autoPlayMusic() {
-    audioEdit.src = document.form.file_upload.file;
+  function uploadFile() {
+    let myForm = new FormData();
+    myForm.append('file', document.form.file_upload.files[0]);
+    let uploadAjax = $.ajax({
+      url: "handleUpload.php",
+      type: "POST",
+      data: myForm,
+      contentType: false,
+      processData: false,
+      success: function (data) {
+        console.log(data.file);
+      },
+      error: function (data) {
+        console.log(data + "error")
+      }
+    });
+    audioEdit.src = uploadAjax.responseText;
     audioEdit.play();
   }
 
