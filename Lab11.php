@@ -163,7 +163,6 @@
 </body>
 <script src="js/jquery-3.3.1.js"></script>
 <script>
-
   // 界面部分
   document.getElementById("d_edit").onclick = function () {
     click_tab("edit");
@@ -175,6 +174,7 @@
   let audioEdit = document.getElementsByTagName("audio")[0];
   let audioDisplay = document.getElementsByTagName("audio")[1];
   let lyricDisplay = document.getElementById("lyricDisplay");
+  let uploadElement = document.form.file_upload;
   let lyricsUl = document.getElementById('words');
   let marginTop = parseInt(lyricsUl.style.marginTop);
   let lyricArray = [];
@@ -215,12 +215,11 @@
     let value = document.getElementById("edit_lyric").value;
     let f_pos = get_target_pos(n_pos);
     let l_pos = 0;
-    for (let i = f_pos; ; i++) {
+    for (let i = f_pos; ; i++)
       if (value.charAt(i) === '\n') {
         l_pos = i + 1;
         break;
       }
-    }
     return [f_pos, l_pos];
   }
 
@@ -231,23 +230,8 @@
   }
 
   function uploadFile() {
-    let myForm = new FormData();
-    myForm.append('file', document.form.file_upload.files[0]);
-    let uploadAjax = $.ajax({
-      url: "handleUpload.php",
-      type: "POST",
-      data: myForm,
-      contentType: false,
-      processData: false,
-      success: function (data) {
-        console.log(data.file);
-      },
-      error: function (data) {
-        console.log(data + "error")
-      }
-    });
-    audioEdit.src = uploadAjax.responseText;
-    audioEdit.play();
+    let file = uploadElement.files[0];
+    audioEdit.src = window.URL.createObjectURL(file);
   }
 
   /* HINT:

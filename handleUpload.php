@@ -5,8 +5,9 @@
  * Date: 07-Jun-18
  * Time: 17:43
  */
-if (isset($_POST["myForm"])) {
-  $temporaryMusicFile = $_FILES["myForm"]["tmp_file"];
-  echo $temporaryMusicFile;
-}
-
+//if (isset($_POST["xmlHttp"])) {
+//  $temporaryMusicFile = $_FILES["xmlHttp"]["tmp_file"];
+//  echo "jkfdslajklfds";
+//}
+$path = count($_FILES);
+echo "$path";
