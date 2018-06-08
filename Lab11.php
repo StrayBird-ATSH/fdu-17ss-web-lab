@@ -98,7 +98,8 @@
 
 <!--歌词编辑部分-->
 <section id="s_edit" class="content">
-  <form id="f_upload" enctype="multipart/form-data" method="post" name="form">
+  <form id="f_upload" enctype="multipart/form-data"
+        method="post" name="form" action="handleUpload.php">
     <p>请上传音乐文件</p>
 
     <audio controls preload="auto">
@@ -113,13 +114,12 @@
       </tr>
       <tr>
         <td colspan="2">
-          <textarea title="" name="edit_lyric" id="edit_lyric">
-          </textarea>
+          <textarea title="" name="edit_lyric" id="edit_lyric"></textarea>
         </td>
       </tr>
       <tr>
-        <td><input type="button" value="插入时间标签"></td>
-        <td><input type="button" value="替换时间标签"></td>
+        <td><input type="button" value="插入时间标签" onclick="insertTimeTag()"></td>
+        <td><input type="button" value="替换时间标签" onclick="replaceTimeTag()"></td>
       </tr>
       <tr>
         <td colspan="2" id="td_submit"><input type="submit" value="Submit"></td>
@@ -154,6 +154,8 @@
     <audio controls preload="auto">
       <p>Browser doesn't support the audio control</p>
     </audio>
+    <button type="button" title="" onclick="previousSong()">Previous Song</button>
+    <button type="button" title="" onclick="nextSong()">Next Song</button>
     <!--TODO: 在这里补充 html 元素，使选择了歌曲之后这里展示歌曲进度条，并且支持上下首切换-->
   </form>
   <div id="lyricDisplay">
@@ -174,7 +176,9 @@
   let audioEdit = document.getElementsByTagName("audio")[0];
   let audioDisplay = document.getElementsByTagName("audio")[1];
   let lyricDisplay = document.getElementById("lyricDisplay");
+  let lyricEdit = document.getElementById("edit_lyric");
   let uploadElement = document.form.file_upload;
+  let selectElement = document.formDisplay.songName;
   let lyricsUl = document.getElementById('words');
   let marginTop = parseInt(lyricsUl.style.marginTop);
   let lyricArray = [];
@@ -191,28 +195,27 @@
   }
 
   // Edit 部分
-  var edit_lyric_pos = 0;
-  document.getElementById("edit_lyric").onmouseleave = function () {
-    edit_lyric_pos = document.getElementById("edit_lyric").selectionStart;
+  let edit_lyric_pos = 0;
+  lyricEdit.onmouseleave = function () {
+    edit_lyric_pos = lyricEdit.selectionStart;
   };
 
   // 获取所在行的初始位置。
   function get_target_pos(n_pos) {
     if (n_pos === undefined) n_pos = edit_lyric_pos;
-    let value = document.getElementById("edit_lyric").value;
+    let value = lyricEdit.value;
     let pos = 0;
-    for (let i = n_pos; i >= 0; i--) {
+    for (let i = n_pos; i >= 0; i--)
       if (value.charAt(i) === '\n') {
         pos = i + 1;
         break;
       }
-    }
     return pos;
   }
 
   // 选中所在行。
   function get_target_line(n_pos) {
-    let value = document.getElementById("edit_lyric").value;
+    let value = lyricEdit.value;
     let f_pos = get_target_pos(n_pos);
     let l_pos = 0;
     for (let i = f_pos; ; i++)
@@ -223,15 +226,44 @@
     return [f_pos, l_pos];
   }
 
+  function formatNumber(number) {
+    if (number.toString().length === 1)
+      number = ("0" + number).toString();
+    return number;
+  }
+
   function get_current_time() {
     let timeString = "[";
     let time = audioEdit.currentTime;
-    timeString += time / 60;
+    let minutes = parseInt((time / 60).toString());
+    time -= minutes * 60;
+    minutes = formatNumber(minutes);
+    let seconds = parseInt(time.toString());
+    time -= seconds;
+    seconds = formatNumber(seconds);
+    time = parseInt((time * 100).toString());
+    time = formatNumber(time);
+    timeString += minutes + ":" + seconds + "." + time + "]";
+    return timeString;
+  }
+
+  function insert_flg(str, flg, sn) {
+    return str.substring(0, sn) + flg + str.substring(sn, str.length);
+  }
+
+  function insertTimeTag() {
+    let value = lyricEdit.value;
+    lyricEdit.value = insert_flg(value, get_current_time(), get_target_pos());
+  }
+
+  function replaceTimeTag() {
+    let value = lyricEdit.value;
+    let selectedValue = value.substring(get_target_line()[0], get_target_line()[1]);
+    lyricEdit.value = value.replace(selectedValue.substring(0, 10), get_current_time);
   }
 
   function uploadFile() {
-    let file = uploadElement.files[0];
-    audioEdit.src = window.URL.createObjectURL(file);
+    audioEdit.src = window.URL.createObjectURL(uploadElement.files[0]);
   }
 
   /* HINT:
@@ -246,8 +278,8 @@
   /* TODO: 请实现你的上传功能，需包含一个音乐文件和你写好的歌词文本。
    */
   function changeSong() {
-    let selectedIndex = document.formDisplay.songName.selectedIndex;
-    audioDisplay.src = "./files/" + document.formDisplay.songName[selectedIndex].text;
+    let selectedIndex = selectElement.selectedIndex;
+    audioDisplay.src = "./files/" + selectElement[selectedIndex].text;
     audioDisplay.play();
     let path = audioDisplay.src;
     ajaxFunction(path.slice(0, path.length - 4) + ".lrc");
@@ -306,6 +338,24 @@
     else return time <= audioDisplay.duration;
   }
 
+  function previousSong() {
+    let index = selectElement.selectedIndex;
+    if (index > 1) {
+      selectElement[index - 1].selected = true;
+      changeSong();
+    }
+
+  }
+
+  function nextSong() {
+    let index = selectElement.selectedIndex;
+    let totalIndex = $("select[name=songName] option").length;
+    if (index < totalIndex - 1) {
+      selectElement[index + 1].selected = true;
+      changeSong();
+    }
+  }
+
   audioDisplay.ontimeupdate = function () {
     let time = audioDisplay.currentTime;
     if (validateTime(time, count)) {
@@ -323,10 +373,9 @@
   };
   audioDisplay.onseeked = function () {
     let cur_time = audioDisplay.currentTime;
-    for (let _i = 0; _i <= lyricArray.length - 1; _i++) {
+    for (let _i = 0; _i <= lyricArray.length - 1; _i++)
       if (cur_time >= lyricArray[_i].time && cur_time <= lyricArray[_i + 1].time)
         count = _i;
-    }
   }
 </script>
 </html>
